@@ -14,14 +14,14 @@
 #ifndef OPEN_INTERFACE_H_
 #define OPEN_INTERFACE_H_
 
+#include <Final Project Code Files/lcd.h>
+#include <Final Project Code Files/Timer.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
 #include <inc/tm4c123gh6pm.h>
-#include "lcd.h"
-#include "Timer.h"
 
 
 #define M_PI 3.14159265358979323846

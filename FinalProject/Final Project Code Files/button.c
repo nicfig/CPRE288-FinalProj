@@ -12,7 +12,7 @@
 //The buttons are on PORTE 3:0
 // GPIO_PORTE_DATA_R -- Name of the memory mapped register for GPIO Port E,
 // which is connected to the push buttons
-#include "button.h"
+#include <Final Project Code Files/button.h>
 
 /**
  * Initialize PORTE and configure bits 0-3 to be used as inputs for the buttons.

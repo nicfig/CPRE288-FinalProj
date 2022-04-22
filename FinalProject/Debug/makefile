@@ -11,15 +11,18 @@ GEN_CMDS__FLAG :=
 
 ORDERED_OBJS += \
 "./tm4c123gh6pm_startup_ccs.obj" \
-"./Lab10 Code Files/Timer.obj" \
-"./Lab10 Code Files/button.obj" \
-"./Lab10 Code Files/lcd.obj" \
-"./Lab10 Code Files/main.obj" \
-"./Lab10 Code Files/ping.obj" \
-"./Lab10 Code Files/servo.obj" \
+"./Final Project Code Files/Timer.obj" \
+"./Final Project Code Files/button.obj" \
+"./Final Project Code Files/lcd.obj" \
+"./Final Project Code Files/main.obj" \
+"./Final Project Code Files/movement.obj" \
+"./Final Project Code Files/open_interface.obj" \
+"./Final Project Code Files/ping.obj" \
+"./Final Project Code Files/servo.obj" \
+"./Final Project Code Files/uart.obj" \
 "../tm4c123gh6pm.cmd" \
-"../Lab10 Code Files/libcybotScan.lib" \
-"../Lab10 Code Files/libcybotUART.lib" \
+"../Final Project Code Files/libcybotScan.lib" \
+"../Final Project Code Files/libcybotUART.lib" \
 $(GEN_CMDS__FLAG) \
 -llibc.a \
 -l"C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/ccs/Debug/driverlib.lib" \
@@ -32,9 +35,9 @@ RMDIR := RMDIR /S/Q
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include subdir_vars.mk
--include Lab10\ Code\ Files/subdir_vars.mk
+-include Final\ Project\ Code\ Files/subdir_vars.mk
 -include subdir_rules.mk
--include Lab10\ Code\ Files/subdir_rules.mk
+-include Final\ Project\ Code\ Files/subdir_rules.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -165,8 +168,8 @@ FinalProject.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "tm4c123gh6pm_startup_ccs.obj" "Lab10 Code Files\Timer.obj" "Lab10 Code Files\button.obj" "Lab10 Code Files\lcd.obj" "Lab10 Code Files\main.obj" "Lab10 Code Files\ping.obj" "Lab10 Code Files\servo.obj" 
-	-$(RM) "tm4c123gh6pm_startup_ccs.d" "Lab10 Code Files\Timer.d" "Lab10 Code Files\button.d" "Lab10 Code Files\lcd.d" "Lab10 Code Files\main.d" "Lab10 Code Files\ping.d" "Lab10 Code Files\servo.d" 
+	-$(RM) "tm4c123gh6pm_startup_ccs.obj" "Final Project Code Files\Timer.obj" "Final Project Code Files\button.obj" "Final Project Code Files\lcd.obj" "Final Project Code Files\main.obj" "Final Project Code Files\movement.obj" "Final Project Code Files\open_interface.obj" "Final Project Code Files\ping.obj" "Final Project Code Files\servo.obj" "Final Project Code Files\uart.obj" 
+	-$(RM) "tm4c123gh6pm_startup_ccs.d" "Final Project Code Files\Timer.d" "Final Project Code Files\button.d" "Final Project Code Files\lcd.d" "Final Project Code Files\main.d" "Final Project Code Files\movement.d" "Final Project Code Files\open_interface.d" "Final Project Code Files\ping.d" "Final Project Code Files\servo.d" "Final Project Code Files\uart.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

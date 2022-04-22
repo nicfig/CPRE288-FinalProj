@@ -15,7 +15,7 @@
  *      Author: Noah Bergman, Eric Middleton, dmlarson
  */
 
-#include "open_interface.h"
+#include <Final Project Code Files/open_interface.h>
 
 #define OI_OPCODE_START 128
 #define OI_OPCODE_BAUD 129

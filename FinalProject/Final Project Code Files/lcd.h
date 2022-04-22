@@ -11,11 +11,11 @@
 //#define IS_STEPPER_BOARD
 //#define IS_STEPPER_BOARD
 
+#include <Final Project Code Files/Timer.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 #include <inc/tm4c123gh6pm.h>
-#include <Lab10 Code Files/Timer.h>
 
 /// Extra function for the stepper motor board
 uint8_t lcd_reverseNibble(uint8_t x);

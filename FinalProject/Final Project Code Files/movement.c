@@ -6,8 +6,8 @@
  */
 
 
-#include "lcd.h"
-#include "open_interface.h"
+#include <Final Project Code Files/lcd.h>
+#include <Final Project Code Files/open_interface.h>
 
 void move_backward (oi_t *sensor_data, double distance_mm){
 

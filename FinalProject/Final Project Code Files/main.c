@@ -4,12 +4,11 @@
  * Template file for CprE 288 Lab 9
  */
 
-#include <Lab10 Code Files/cyBot_uart.h>
-#include <Lab10 Code Files/lcd.h>
-#include <Lab10 Code Files/ping.h>
-#include <Lab10 Code Files/Timer.h>
-#include <Lab10 Code Files/servo.h>
-#include <Lab10 Code Files/button.h>
+#include <Final Project Code Files/button.h>
+#include <Final Project Code Files/lcd.h>
+#include <Final Project Code Files/ping.h>
+#include <Final Project Code Files/servo.h>
+#include <Final Project Code Files/Timer.h>
 
 
 // Uncomment or add any include directives that are needed

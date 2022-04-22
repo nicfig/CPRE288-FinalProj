@@ -9,7 +9,7 @@
  */
 
 
-#include <Lab10 Code Files/lcd.h>
+#include <Final Project Code Files/lcd.h>
 
 #define BIT0		0x01
 #define BIT1		0x02

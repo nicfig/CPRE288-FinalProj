@@ -42,10 +42,10 @@
 //
 //}
 
-#include "servo.h"
-#include "Timer.h"
+#include <Final Project Code Files/button.h>
+#include <Final Project Code Files/servo.h>
+#include <Final Project Code Files/Timer.h>
 #include <stdint.h>
-#include "button.h"
 
  int leftVal = 283361;
  int rightVal = 311150;

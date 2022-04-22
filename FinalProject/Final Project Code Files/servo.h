@@ -10,11 +10,11 @@
 #include "driverlib/interrupt.h"
 
 
-#ifndef LAB10_CODE_FILES_SERVO_H_
-#define LAB10_CODE_FILES_SERVO_H_
+#ifndef FINAL_PROJECT_CODE_FILES_SERVO_H_
+#define FINAL_PROJECT_CODE_FILES_SERVO_H_
 
 void servo_init(void);
 void servo_move(uint16_t degrees);
 void button_move(void);
 
-#endif /* LAB10_CODE_FILES_SERVO_H_ */
+#endif /* FINAL_PROJECT_CODE_FILES_SERVO_H_ */
