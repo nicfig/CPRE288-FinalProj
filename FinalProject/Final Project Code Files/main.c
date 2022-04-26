@@ -59,18 +59,21 @@ int main(void) {
 	    if(c == 'm'){
 	        scan();
 	    }
-	    if(c == 'w'){
-	        oi_setWheels(500, 500);
+	    else if(c == 'w'){
+	        oi_setWheels(75, 75);
 	    }
-	    if(c == 's'){
-	        oi_setWheels(-500, -500);
+	    else if(c == 's'){
+	        oi_setWheels(-75, -75);
 	    }
-        if(c == 'a'){
-            oi_setWheels(500, -500);
+	    else if(c == 'a'){
+            oi_setWheels(75, -75);
         }
-        if(c == 'd'){
-            oi_setWheels(-500, 500);
+	    else if(c == 'd'){
+            oi_setWheels(-75, 75);
         }
+	    else {
+	        oi_setWheels(0, 0);
+	    }
 	}
 
     oi_free(sensor);

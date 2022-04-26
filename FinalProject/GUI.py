@@ -2,17 +2,23 @@ import pygame
 import sys
 import math
 import os
+import socket
+
 from pygame.locals import (
     K_w,
     K_a,
     K_s,
     K_d,
+    K_m,
     K_ESCAPE,
     QUIT,
     KEYDOWN,
 )
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 image = os.path.join(THIS_FOLDER, 'roomba.png')
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(('192.168.1.1', 288))
 
 
 SCREEN_WIDTH = 1000
@@ -43,26 +49,43 @@ class Player(pygame.sprite.Sprite):
             roomba, DEFAULT_IMAGE_SIZE)
         self.original_image.convert_alpha()  # optimise alpha
         self.original_image.set_colorkey(ALPHA)  # set alpha
-        # pygame.draw.line(self.original_image, (255, 0, 255), (size[0] / 2, 0), (size[0] / 2, size[1]), 3)
-        # pygame.draw.line(self.original_image, (0, 255, 255), (size[1], 0), (0, size[1]), 3)
         self.image = self.original_image
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.angle = 0
+        self.pos = pygame.Vector2((x, y))
+        self.direction = pygame.Vector2((0, -1))
 
     def update(self, v):
-        if v == 1:
-            self.rect.move_ip(math.cos(self.angle), math.sin(self.angle))
-        elif v == 2:
-            self.image = pygame.transform.rotate(
-                self.original_image, self.angle)
+        if v == 1 or v == 2:
+            if v == 1: movement = 1
+            if v == 2: movement = -1
+            movement_v = self.direction * movement
+            if movement_v.length() > 0:
+                movement_v.normalize_ip()
+                self.pos += movement_v
+            self.rect.center = (self.pos)
+        elif v == 3:
+            self.image = pygame.transform.rotate(self.original_image, self.angle)
             # Value will reapeat after 359. This prevents angle to overflow.
-            self.angle += 1 % 360
+            self.angle = (self.angle + 1) % 360
             x, y = self.rect.center  # Save its current center.
+            self.direction.rotate_ip(-1)
             # Replace old rect with new rect.
             self.rect = self.image.get_rect()
             # Put the new rect's center at old center.
             self.rect.center = (x, y)
+        elif v == 4:
+            self.image = pygame.transform.rotate(self.original_image, self.angle)
+            # Value will reapeat after 359. This prevents angle to overflow.
+            self.angle = (self.angle - 1) % 360
+            x, y = self.rect.center  # Save its current center.
+            # Replace old rect with new rect.
+            self.direction.rotate_ip(1)
+            self.rect = self.image.get_rect()
+            # Put the new rect's center at old center.
+            self.rect.center = (x, y)
+        
 
 
 class Obj(pygame.sprite.Sprite):
@@ -102,16 +125,27 @@ while running:
 
     screen.fill(black)
 
-    if keys[K_w]:
+    if keys[K_m]:
+        s.send(bytes('m', 'utf-8'))
+    elif keys[K_w]:
         cybot.update(1)
-    elif keys[K_a]:
+        s.send(bytes('w', 'utf-8'))
+    elif keys[K_s]:
         cybot.update(2)
-
+        s.send(bytes('s', 'utf-8'))
+    elif keys[K_a]:
+        cybot.update(3)
+        s.send(bytes('a', 'utf-8'))
+    elif keys[K_d]:
+        cybot.update(4)
+        s.send(bytes('d', 'utf-8'))
+    else:
+        s.send(bytes(' ', 'utf-8'))
     screen.blit(cybot.image, cybot.rect)
 
     pygame.display.flip()
     pygame.display.update()
     clock.tick(30)
 
-
+s.close()
 pygame.quit()
