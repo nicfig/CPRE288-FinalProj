@@ -12,6 +12,7 @@ GEN_CMDS__FLAG :=
 ORDERED_OBJS += \
 "./tm4c123gh6pm_startup_ccs.obj" \
 "./Final Project Code Files/Timer.obj" \
+"./Final Project Code Files/adc.obj" \
 "./Final Project Code Files/button.obj" \
 "./Final Project Code Files/lcd.obj" \
 "./Final Project Code Files/main.obj" \
@@ -168,8 +169,8 @@ FinalProject.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "tm4c123gh6pm_startup_ccs.obj" "Final Project Code Files\Timer.obj" "Final Project Code Files\button.obj" "Final Project Code Files\lcd.obj" "Final Project Code Files\main.obj" "Final Project Code Files\movement.obj" "Final Project Code Files\open_interface.obj" "Final Project Code Files\ping.obj" "Final Project Code Files\servo.obj" "Final Project Code Files\uart.obj" 
-	-$(RM) "tm4c123gh6pm_startup_ccs.d" "Final Project Code Files\Timer.d" "Final Project Code Files\button.d" "Final Project Code Files\lcd.d" "Final Project Code Files\main.d" "Final Project Code Files\movement.d" "Final Project Code Files\open_interface.d" "Final Project Code Files\ping.d" "Final Project Code Files\servo.d" "Final Project Code Files\uart.d" 
+	-$(RM) "tm4c123gh6pm_startup_ccs.obj" "Final Project Code Files\Timer.obj" "Final Project Code Files\adc.obj" "Final Project Code Files\button.obj" "Final Project Code Files\lcd.obj" "Final Project Code Files\main.obj" "Final Project Code Files\movement.obj" "Final Project Code Files\open_interface.obj" "Final Project Code Files\ping.obj" "Final Project Code Files\servo.obj" "Final Project Code Files\uart.obj" 
+	-$(RM) "tm4c123gh6pm_startup_ccs.d" "Final Project Code Files\Timer.d" "Final Project Code Files\adc.d" "Final Project Code Files\button.d" "Final Project Code Files\lcd.d" "Final Project Code Files\main.d" "Final Project Code Files\movement.d" "Final Project Code Files\open_interface.d" "Final Project Code Files\ping.d" "Final Project Code Files\servo.d" "Final Project Code Files\uart.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

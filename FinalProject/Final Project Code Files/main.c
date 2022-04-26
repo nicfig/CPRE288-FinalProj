@@ -1,7 +1,7 @@
 /**
- * @file lab9_template.c
+ * @file main.c
  * @author
- * Template file for CprE 288 Lab 9
+ * Template file for CprE 288 Lab Final Project
  */
 
 #include <Final Project Code Files/button.h>
@@ -9,6 +9,10 @@
 #include <Final Project Code Files/ping.h>
 #include <Final Project Code Files/servo.h>
 #include <Final Project Code Files/Timer.h>
+#include "uart.h"
+#include "adc.h"
+#include "movement.h"
+#include "open_interface.h"
 
 
 // Uncomment or add any include directives that are needed
@@ -16,53 +20,60 @@
 #warning "Possible unimplemented functions"
 #define REPLACEME 0
 
+void scan(){
+    char string[100];
+    int j;
+    int i;
+    servo_move(0);
+    timer_waitMillis(100);
+    for(i=0; i<180; i++)
+    {
+        servo_move(i);
+        // YOUR CODE HERE
+        sprintf(string, "%d,\t%lf", i, ping_getDistance());
+
+        uart_sendStr(string);
+        uart_sendChar('\n');
+        uart_sendChar('\r');
+
+        timer_waitMillis(100);
+    }
+}
+
 int main(void) {
-	timer_init(); // Must be called before lcd_init(), which uses timer functions
+    oi_t *sensor = oi_alloc();
+    oi_init(sensor);
+	timer_init();
 	lcd_init();
+	timer_init();
+	adc_init();
 	servo_init();
 	button_init();
+	ping_init();
+	uart_init();
 
+	char c = ' ';
 
-//	ping_init();
-//	cyBot_uart_init();
-//	// YOUR CODE HERE
-//    char string[100];
-//    int j;
-//	while(1)
-//	{
-//
-//      // YOUR CODE HERE
-//        sprintf(string, "%lf", ping_getDistance());
-//
-//
-//        for(j=0; j < strlen(string); j++){
-//            cyBot_sendByte(string[j]);
-//        }
-//        cyBot_sendByte('\n');
-//        cyBot_sendByte('\r');
-//
-//	    timer_waitMillis(100);
-//
-//
-//	}
-
-
-
-
-	servo_move(90);
-	timer_waitMillis(500);
-	servo_move(0);
-	timer_waitMillis(500);
-	servo_move(180);
-	timer_waitMillis(500);
-	servo_move(90);
-
-    timer_waitMillis(500);
-    servo_move(180);
-
-	while(1) {
-	    button_move();
+	while(c != 'p'){
+	    c = uart_receive();
+	    if(c == 'm'){
+	        scan();
+	    }
+	    if(c == 'w'){
+	        oi_setWheels(500, 500);
+	    }
+	    if(c == 's'){
+	        oi_setWheels(-500, -500);
+	    }
+        if(c == 'a'){
+            oi_setWheels(500, -500);
+        }
+        if(c == 'd'){
+            oi_setWheels(-500, 500);
+        }
 	}
+
+    oi_free(sensor);
 
 	return 0;
 

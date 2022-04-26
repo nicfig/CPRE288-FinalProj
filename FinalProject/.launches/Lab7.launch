@@ -5,7 +5,7 @@
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROGRAM.Tiva TM4C123GH6PM.ccxml.Stellaris In-Circuit Debug Interface/CORTEX_M4_0" value="${build_artifact:Lab7}"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT.Tiva TM4C123GH6PM.ccxml.Stellaris In-Circuit Debug Interface/CORTEX_M4_0" value="Lab7"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_TARGET_CONFIG" value="${target_config_active_default:Lab7}"/>
-<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.Tiva TM4C123GH6PM.ccxml.Stellaris In-Circuit Debug Interface/CORTEX_M4_0" value="U:\Cpre288Workspace\Lab7\Debug\Lab7.out"/>
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.Tiva TM4C123GH6PM.ccxml.Stellaris In-Circuit Debug Interface/CORTEX_M4_0" value="U:\CPRE288-FinalProj\Lab7\Debug\Lab7.out"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/Lab7"/>
 </listAttribute>
