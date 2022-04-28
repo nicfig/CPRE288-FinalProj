@@ -26,11 +26,11 @@ void scan()
 	int i;
 	servo_move(0);
 	timer_waitMillis(100);
-	for (i = 0; i < 180; i++)
+	for (i = 0; i <= 180; i++)
 	{
 		servo_move(i);
 		// YOUR CODE HERE
-		sprintf(string, "%d, %lf", i, ping_getDistance());
+		sprintf(string, "%d %lf", i, ping_getDistance());
 
 		uart_sendStr(string);
 

@@ -118,14 +118,19 @@ x = SCREEN_WIDTH/2
 y = SCREEN_HEIGHT/2
 
 
-# def scan():
-#     for x in range(0, 180):
-#         data = s.recv(1024)
-#         print(data)
-#         pygame.display.flip()
-#         pygame.display.update()
-#         screen.blit(cybot.image, cybot.rect)
-#         clock.tick(30)
+def scan():
+    res = ""
+    for x in range(0, 180):
+        data = s.recv(1024)
+        res += data.decode()
+        angle, dist = (int(float(s)) for s in res.split())
+        res = ""
+        if dist < 100:
+            pygame.draw.circle(screen, blue, (cybot.rect.center.x + (dist * math.cos(angle * math.pi / 180), cybot.rect.center.y + (dist * math.sin(angle * math.pi / 180)))), 20)
+        pygame.display.flip()
+        pygame.display.update()
+        screen.blit(cybot.image, cybot.rect)
+        clock.tick(30)
 
 
 running = True
@@ -143,6 +148,7 @@ while running:
 
     if keys[K_m]:
         s.send(bytes('m', 'utf-8'))
+        scan()
     elif keys[K_w]:
         cybot.update(1)
         s.send(bytes('w', 'utf-8'))
@@ -152,8 +158,6 @@ while running:
     elif keys[K_a]:
         cybot.update(3)
         s.send(bytes('a', 'utf-8'))
-        data = s.recv(1024)
-        print(data)
     elif keys[K_d]:
         cybot.update(4)
         s.send(bytes('d', 'utf-8'))
@@ -161,8 +165,8 @@ while running:
         s.send(bytes(' ', 'utf-8'))
     screen.blit(cybot.image, cybot.rect)
 
+    
     data = s.recv(1024)
-    print(data)
 
     pygame.display.flip()
     pygame.display.update()
