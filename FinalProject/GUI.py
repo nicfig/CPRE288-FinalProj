@@ -58,15 +58,18 @@ class Player(pygame.sprite.Sprite):
 
     def update(self, v):
         if v == 1 or v == 2:
-            if v == 1: movement = 1
-            if v == 2: movement = -1
+            if v == 1:
+                movement = 1
+            if v == 2:
+                movement = -1
             movement_v = self.direction * movement
             if movement_v.length() > 0:
                 movement_v.normalize_ip()
                 self.pos += movement_v
             self.rect.center = (self.pos)
         elif v == 3:
-            self.image = pygame.transform.rotate(self.original_image, self.angle)
+            self.image = pygame.transform.rotate(
+                self.original_image, self.angle)
             # Value will reapeat after 359. This prevents angle to overflow.
             self.angle = (self.angle + 1) % 360
             print(self.angle)
@@ -77,7 +80,8 @@ class Player(pygame.sprite.Sprite):
             # Put the new rect's center at old center.
             self.rect.center = (x, y)
         elif v == 4:
-            self.image = pygame.transform.rotate(self.original_image, self.angle)
+            self.image = pygame.transform.rotate(
+                self.original_image, self.angle)
             # Value will reapeat after 359. This prevents angle to overflow.
             self.angle = (self.angle - 1) % 360
             print(self.angle)
@@ -87,7 +91,6 @@ class Player(pygame.sprite.Sprite):
             self.rect = self.image.get_rect()
             # Put the new rect's center at old center.
             self.rect.center = (x, y)
-        
 
 
 class Obj(pygame.sprite.Sprite):
@@ -114,14 +117,16 @@ all_sprites.add(obj)
 x = SCREEN_WIDTH/2
 y = SCREEN_HEIGHT/2
 
-def scan():
-    for x in range(0, 180):
-        data = s.recv(1024)
-        print(data)
-        pygame.display.flip()
-        pygame.display.update()
-        screen.blit(cybot.image, cybot.rect)
-        clock.tick(30)
+
+# def scan():
+#     for x in range(0, 180):
+#         data = s.recv(1024)
+#         print(data)
+#         pygame.display.flip()
+#         pygame.display.update()
+#         screen.blit(cybot.image, cybot.rect)
+#         clock.tick(30)
+
 
 running = True
 while running:
@@ -138,7 +143,6 @@ while running:
 
     if keys[K_m]:
         s.send(bytes('m', 'utf-8'))
-        scan()
     elif keys[K_w]:
         cybot.update(1)
         s.send(bytes('w', 'utf-8'))
@@ -153,11 +157,12 @@ while running:
     elif keys[K_d]:
         cybot.update(4)
         s.send(bytes('d', 'utf-8'))
-        data = s.recv(1024)
-        print(data)
     else:
         s.send(bytes(' ', 'utf-8'))
     screen.blit(cybot.image, cybot.rect)
+
+    data = s.recv(1024)
+    print(data)
 
     pygame.display.flip()
     pygame.display.update()
