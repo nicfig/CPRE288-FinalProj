@@ -69,6 +69,7 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.transform.rotate(self.original_image, self.angle)
             # Value will reapeat after 359. This prevents angle to overflow.
             self.angle = (self.angle + 1) % 360
+            print(self.angle)
             x, y = self.rect.center  # Save its current center.
             self.direction.rotate_ip(-1)
             # Replace old rect with new rect.
@@ -79,6 +80,7 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.transform.rotate(self.original_image, self.angle)
             # Value will reapeat after 359. This prevents angle to overflow.
             self.angle = (self.angle - 1) % 360
+            print(self.angle)
             x, y = self.rect.center  # Save its current center.
             # Replace old rect with new rect.
             self.direction.rotate_ip(1)
@@ -112,6 +114,15 @@ all_sprites.add(obj)
 x = SCREEN_WIDTH/2
 y = SCREEN_HEIGHT/2
 
+def scan():
+    for x in range(0, 180):
+        data = s.recv(1024)
+        print(data)
+        pygame.display.flip()
+        pygame.display.update()
+        screen.blit(cybot.image, cybot.rect)
+        clock.tick(30)
+
 running = True
 while running:
     for event in pygame.event.get():
@@ -127,6 +138,7 @@ while running:
 
     if keys[K_m]:
         s.send(bytes('m', 'utf-8'))
+        scan()
     elif keys[K_w]:
         cybot.update(1)
         s.send(bytes('w', 'utf-8'))
@@ -136,9 +148,13 @@ while running:
     elif keys[K_a]:
         cybot.update(3)
         s.send(bytes('a', 'utf-8'))
+        data = s.recv(1024)
+        print(data)
     elif keys[K_d]:
         cybot.update(4)
         s.send(bytes('d', 'utf-8'))
+        data = s.recv(1024)
+        print(data)
     else:
         s.send(bytes(' ', 'utf-8'))
     screen.blit(cybot.image, cybot.rect)
