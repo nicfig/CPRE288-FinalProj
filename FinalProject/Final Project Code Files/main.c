@@ -20,24 +20,59 @@
 #warning "Possible unimplemented functions"
 #define REPLACEME 0
 
+typedef struct obj{
+    int first;
+    int second;
+    int distance;
+} obj;
+
+typedef struct obj_PING{
+    int angle;
+    float distance;
+    float width;
+} obj_PING;
+
 void scan(){
     char string[100];
-    int j;
+    int j = 0;
     int i;
+    obj objects[10];
+    obj_PING toGUI[10];
+    boolean isObject = false;
     servo_move(0);
     timer_waitMillis(100);
     for(i=0; i<180; i++)
     {
+        int dist = ping_getDistance();
         servo_move(i);
-        // YOUR CODE HERE
+        /* YOUR CODE HERE
         sprintf(string, "%d,\t%lf", i, ping_getDistance());
 
         uart_sendStr(string);
         uart_sendChar('\n');
         uart_sendChar('\r');
-
+*/
+        
+        if(dist < 100){  //Get right value
+            if(!isObject){
+                objects[j].first = i;
+                isObject = true;
+            }
+            else{
+                objects[j].second = i;
+                isObject = false;
+                int mid = (objects[j].first + objects[j].second) / 2;
+                toGUI[j].angle = mid;
+                servo_move(mid);
+                objects[j].distance = ping_getDistance();
+                toGUI[j].distance = objects[j].distance;
+                // Formula to find width
+                j++;
+            }
+        }
         timer_waitMillis(100);
     }
+    
 }
 
 int main(void) {
@@ -51,7 +86,7 @@ int main(void) {
 	button_init();
 	ping_init();
 	uart_init();
-
+/*
 	char c = ' ';
 
 	while(c != 'p'){
@@ -72,9 +107,35 @@ int main(void) {
             oi_setWheels(-500, 500);
         }
 	}
-
+*/
     oi_free(sensor);
 
 	return 0;
+
+}
+
+int cliffCheck(oi_t *sensor){
+    oi_update(sensor);
+    
+    int cliffStatus = 0;
+    
+    if(sensor -> cliffLeft){
+        cliffStatus = 1;
+    }
+    else if(sensor -> cliffRight){
+        cliffStatus = 2;
+    }
+    else if(sensor -> cliffFrontLeft){
+        cliffStatus = 3;
+    }
+    else if(sensor -> cliffFrontRight){
+        cliffStatus = 4;
+    }
+    else{
+        cliffStatus = 0;
+    }
+    return cliffStatus
+}
+
 
 }
