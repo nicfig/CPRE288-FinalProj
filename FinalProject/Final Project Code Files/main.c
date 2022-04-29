@@ -38,7 +38,7 @@ void scan(){
     int i;
     obj objects[10];
     obj_PING toGUI[10];
-    boolean isObject = false;
+    bool isObject = false;
     servo_move(0);
     timer_waitMillis(100);
     for(i=0; i<180; i++)
@@ -86,28 +86,59 @@ int main(void) {
 	button_init();
 	ping_init();
 	uart_init();
-/*
-	char c = ' ';
 
-	while(c != 'p'){
+	char c = ' ';
+	int cliff;
+
+	/*while(c != 'p'){
 	    c = uart_receive();
 	    if(c == 'm'){
 	        scan();
 	    }
 	    if(c == 'w'){
-	        oi_setWheels(500, 500);
+	        oi_setWheels(50, 50);
 	    }
 	    if(c == 's'){
-	        oi_setWheels(-500, -500);
+	        oi_setWheels(-50, -50);
 	    }
         if(c == 'a'){
-            oi_setWheels(500, -500);
+            oi_setWheels(50, -50);
         }
         if(c == 'd'){
-            oi_setWheels(-500, 500);
+            oi_setWheels(-50, 50);
         }
-	}
+        if(c == 'e'){
+            oi_setWheels(0, 0);
+        }
 */
+	    oi_setWheels(50,50);
+
+	    while(1){
+            int cCheck = cliffCheck(sensor);
+            lcd_printf("In while:  %d", cCheck);
+
+            if(cCheck == 1){
+    //            lcd_printf("%d", cCheck);
+                oi_setWheels(0, 0);
+                break;
+            }
+            else if(cCheck == 2){
+    //            lcd_printf("%d", cCheck);
+                oi_setWheels(0, 0);
+                break;
+            }
+            else if(cCheck == 3){
+    //            lcd_printf("%d", cCheck);
+                oi_setWheels(0, 0);
+                break;
+            }
+            else if(cCheck == 4){
+    //            lcd_printf("%d", cCheck);
+                oi_setWheels(0, 0);
+                break;
+            }
+	    }
+//}
     oi_free(sensor);
 
 	return 0;
@@ -134,8 +165,10 @@ int cliffCheck(oi_t *sensor){
     else{
         cliffStatus = 0;
     }
-    return cliffStatus
+    lcd_printf("In check:  %d", cliffStatus);
+    //timer_waitMillis(5000);
+    return cliffStatus;
 }
 
 
-}
+
