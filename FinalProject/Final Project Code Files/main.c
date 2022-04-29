@@ -25,7 +25,8 @@ void scan()
 	int j;
 	int i;
 	servo_move(0);
-	timer_waitMillis(100);
+	double err = ping_getDistance();
+	timer_waitMillis(300);
 	for (i = 0; i <= 180; i++)
 	{
 		servo_move(i);
@@ -65,48 +66,49 @@ int main(void)
 		else if (c == 'w')
 		{
 			oi_setWheels(75, 75);
-			sprintf(string, " ");
-			uart_sendStr(string);
+//			sprintf(string, " ");
+//			uart_sendStr(string);
 		}
 		else if (c == 's')
 		{
 			oi_setWheels(-75, -75);
-			sprintf(string, " ");
-			uart_sendStr(string);
+//			sprintf(string, " ");
+//			uart_sendStr(string);
 		}
 		else if (c == 'a')
 		{
 			oi_setWheels(75, -75);
-			oi_update(sensor);
-			angle = (int)(angle + sensor->angle) % 360;
-			if (angle < 0)
-			{
-				angle += 360;
-			}
-			printf("%d\n", angle);
-			sprintf(string, "%d", angle);
-			uart_sendStr(string);
+//			oi_update(sensor);
+//			angle = (int)(angle + sensor->angle) % 360;
+//			if (angle < 0)
+//			{
+//				angle += 360;
+//			}
+//			printf("%d\n", angle);
+//			sprintf(string, "%d", angle);
+//			uart_sendStr(string);
 		}
 		else if (c == 'd')
 		{
 			oi_setWheels(-75, 75);
-			oi_update(sensor);
-			angle = (int)(angle + sensor->angle) % 360;
-			if (angle < 0)
-			{
-				angle += 360;
-			}
+//			oi_update(sensor);
+//			angle = (int)(angle + sensor->angle) % 360;
+//			if (angle < 0)
+//			{
+//				angle += 360;
+//			}
 
-			printf("%d\n", angle);
-			sprintf(string, "%d", angle);
-			uart_sendStr(string);
+//			printf("%d\n", angle);
+//			sprintf(string, "%d", angle);
+//			uart_sendStr(string);
 		}
 		else
 		{
-			sprintf(string, " ");
-			uart_sendStr(string);
 			oi_setWheels(0, 0);
 		}
+        sprintf(string, " ");
+        uart_sendStr(string);
+
 	}
 
 	oi_free(sensor);

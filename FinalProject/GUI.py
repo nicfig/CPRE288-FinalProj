@@ -36,11 +36,12 @@ pygame.init()
 clock = pygame.time.Clock()
 
 screen = pygame.display.set_mode([SCREEN_WIDTH, SCREEN_HEIGHT])
-DEFAULT_IMAGE_SIZE = (80, 80)
+DEFAULT_IMAGE_SIZE = (25, 25)
 
 
 roomba = pygame.image.load(image).convert()
 
+rotateSPD = 1.6
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -71,10 +72,9 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.transform.rotate(
                 self.original_image, self.angle)
             # Value will reapeat after 359. This prevents angle to overflow.
-            self.angle = (self.angle + 1) % 360
-            print(self.angle)
+            self.angle = (self.angle + rotateSPD) % 360
             x, y = self.rect.center  # Save its current center.
-            self.direction.rotate_ip(-1)
+            self.direction.rotate_ip(-rotateSPD)
             # Replace old rect with new rect.
             self.rect = self.image.get_rect()
             # Put the new rect's center at old center.
@@ -83,23 +83,22 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.transform.rotate(
                 self.original_image, self.angle)
             # Value will reapeat after 359. This prevents angle to overflow.
-            self.angle = (self.angle - 1) % 360
-            print(self.angle)
+            self.angle = (self.angle - rotateSPD) % 360
             x, y = self.rect.center  # Save its current center.
             # Replace old rect with new rect.
-            self.direction.rotate_ip(1)
+            self.direction.rotate_ip(rotateSPD)
             self.rect = self.image.get_rect()
             # Put the new rect's center at old center.
             self.rect.center = (x, y)
 
 
 class Obj(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, pos):
         super(Obj, self).__init__()
         self.obj_surface = screen
         self.obj_color = red
-        self.obj_radius = 25
-        self.obj_pos = (x, y)
+        self.obj_radius = 1
+        self.obj_pos = pos
         self.obj_width = 0
 
     def draw(self):
@@ -111,9 +110,6 @@ cybot = Player(SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
 
 all_sprites = pygame.sprite.Group()
 
-obj = Obj(100, 100)
-all_sprites.add(obj)
-
 x = SCREEN_WIDTH/2
 y = SCREEN_HEIGHT/2
 
@@ -122,11 +118,19 @@ def scan():
     res = ""
     for x in range(0, 180):
         data = s.recv(1024)
+        if not data: break
         res += data.decode()
         angle, dist = (int(float(s)) for s in res.split())
         res = ""
-        if dist < 100:
-            pygame.draw.circle(screen, blue, (cybot.rect.center.x + (dist * math.cos(angle * math.pi / 180), cybot.rect.center.y + (dist * math.sin(angle * math.pi / 180)))), 20)
+        x, y = cybot.rect.center
+        if angle <= 90: angle = (180 - angle)
+        elif angle > 90: angle = -(angle - 180)
+
+        pos = (x + (dist * math.cos((cybot.angle + angle) * math.pi / 180)), y - (dist * math.sin((cybot.angle + angle) * math.pi / 180)))
+        if dist < 50:
+            obj = Obj(pos)
+            obj.draw()
+            all_sprites.add(obj)
         pygame.display.flip()
         pygame.display.update()
         screen.blit(cybot.image, cybot.rect)
@@ -165,9 +169,10 @@ while running:
         s.send(bytes(' ', 'utf-8'))
     screen.blit(cybot.image, cybot.rect)
 
+    for x in all_sprites:
+        x.draw()
     
     data = s.recv(1024)
-
     pygame.display.flip()
     pygame.display.update()
     clock.tick(30)
