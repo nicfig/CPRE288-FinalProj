@@ -44,6 +44,7 @@ roomba = pygame.image.load(image).convert()
 
 rotateSPD = 1.6
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super(Player, self).__init__()
@@ -72,14 +73,16 @@ class Player(pygame.sprite.Sprite):
             #     self.pos += movement_v
             # self.rect.center = (self.pos)
             val = val / 10
-            self.rect.center = (self.startx + ((val * math.cos(self.angle * math.pi / 180))), self.starty + (val * math.sin(self.angle * math.pi / 180)))
+            self.rect.center = (self.startx + ((val * math.cos(self.angle * math.pi / 180))),
+                                self.starty + (val * math.sin(self.angle * math.pi / 180)))
             # print((x + (val * math.cos(self.angle * math.pi / 180))))
         elif action == 2:
-             self.image = pygame.transform.rotate(self.original_image, self.angle)
-             self.angle = val
-             x, y = self.rect.center
-             self.rect = self.image.get_rect()
-             self.rect.center = (x, y)
+            self.image = pygame.transform.rotate(
+                self.original_image, self.angle)
+            self.angle = val
+            x, y = self.rect.center
+            self.rect = self.image.get_rect()
+            self.rect.center = (x, y)
         # elif v == 3:
         #     self.image = pygame.transform.rotate(
         #         self.original_image, self.angle)
@@ -125,36 +128,69 @@ all_sprites = pygame.sprite.Group()
 x = SCREEN_WIDTH/2
 y = SCREEN_HEIGHT/2
 
-def recieve(action):
-    data = s.recv(1024)
-    cybot.update(action, int(float(data.decode())))
+res = ""
 
-def scan():
-    s.send(bytes('m', 'utf-8'))
-    res = ""
-    for x in range(0, 180):
-        data = s.recv(1024)
-        if not data: break
-        res += data.decode()
-        angle, dist = (int(float(s)) for s in res.split())
+
+def recieve():
+    while True:
         res = ""
-        x, y = cybot.rect.center
-        if angle <= 90: angle = (180 - angle)
-        elif angle > 90: angle = -(angle - 180)
-        pos = (x + (dist * math.cos((cybot.angle + angle) * math.pi / 180)), y - (dist * math.sin((cybot.angle + angle) * math.pi / 180)))
-        if dist < 50:
-            obj = Obj(pos)
-            all_sprites.add(obj)
-        for x in all_sprites:
-            x.draw()
-        pygame.display.flip()
-        pygame.display.update()
-        screen.blit(cybot.image, cybot.rect)
-        clock.tick(30)
+        data = s.recv(1024)
+        if not data:
+            break
+        res += data.decode()
+        if res[0] == 'm':
+            res = res.strip('m')
+            angle, dist = (int(float(s)) for s in res.split())
+            x, y = cybot.rect.center
+            if angle <= 90:
+                angle = (180 - angle)
+            elif angle > 90:
+                angle = -(angle - 180)
+            pos = (x + (dist * math.cos((cybot.angle + angle) * math.pi / 180)),
+                   y - (dist * math.sin((cybot.angle + angle) * math.pi / 180)))
+            if dist < 50:
+                obj = Obj(pos)
+                all_sprites.add(obj)
+        elif res[0] == 'd':
+            res = res.strip('d')
+            cybot.update(1, int(float(res)))
+        elif res[0] == 't':
+            res = res.strip('t')
+            cybot.update(2, int(float(res)))
+
+
+# def scan():
+#     s.send(bytes('m', 'utf-8'))
+#     res = ""
+#     for x in range(0, 180):
+#         data = s.recv(1024)
+#         if not data:
+#             break
+#         res += data.decode()
+#         angle, dist = (int(float(s)) for s in res.split())
+#         res = ""
+#         x, y = cybot.rect.center
+#         if angle <= 90:
+#             angle = (180 - angle)
+#         elif angle > 90:
+#             angle = -(angle - 180)
+#         pos = (x + (dist * math.cos((cybot.angle + angle) * math.pi / 180)),
+#                y - (dist * math.sin((cybot.angle + angle) * math.pi / 180)))
+#         if dist < 50:
+#             obj = Obj(pos)
+#             all_sprites.add(obj)
+#         for x in all_sprites:
+#             x.draw()
+#         pygame.display.flip()
+#         pygame.display.update()
+#         screen.blit(cybot.image, cybot.rect)
+#         clock.tick(30)
+
 
 action = 0
 threads = list()
-
+thread = Thread(target=recieve, args=(), daemon=True)
+thread.start()
 running = True
 while running:
     for event in pygame.event.get():
@@ -169,23 +205,15 @@ while running:
     screen.fill(black)
 
     if keys[K_m]:
-        scan()
-    elif keys[K_w] or keys[K_s]:
-        for thread in threads:
-            thread.join()
-        if keys[K_w]: s.send(bytes('w', 'utf-8'))
-        elif keys[K_s]: s.send(bytes('s', 'utf-8'))
-        thread = Thread(target = recieve, args=(1,), daemon=True)
-        threads.append(thread)
-        thread.start()
-    elif keys[K_a] or keys[K_d]:
-        for thread in threads:
-            thread.join()
-        if keys[K_a]: s.send(bytes('a', 'utf-8'))
-        elif keys[K_d]: s.send(bytes('d', 'utf-8'))
-        thread = Thread(target = recieve, args=(2,), daemon=True)
-        threads.append(thread)
-        thread.start()
+        s.send(bytes('m', 'utf-8'))
+    if keys[K_w]:
+        s.send(bytes('w', 'utf-8'))
+    elif keys[K_s]:
+        s.send(bytes('s', 'utf-8'))
+    elif keys[K_a]:
+        s.send(bytes('a', 'utf-8'))
+    elif keys[K_d]:
+        s.send(bytes('d', 'utf-8'))
     else:
         s.send(bytes(' ', 'utf-8'))
     screen.blit(cybot.image, cybot.rect)

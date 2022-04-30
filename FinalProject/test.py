@@ -1,8 +1,9 @@
 import socket
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(('192.168.1.1', 288))
+string = "m 34 60"
 
-s.send(bytes('m', 'utf-8'))
-
-s.close()
+char = string[0]
+if char == 'm':
+    string = string.strip('m')
+    angle, dist = (int(float(s)) for s in string.split())
+    print(angle, dist)

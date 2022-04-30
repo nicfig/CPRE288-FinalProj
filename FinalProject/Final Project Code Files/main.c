@@ -31,7 +31,7 @@ void scan()
 	{
 		servo_move(i);
 		// YOUR CODE HERE
-		sprintf(string, "%d %lf", i, ping_getDistance());
+		sprintf(string, "m %d %lf", i, ping_getDistance());
 
 		uart_sendStr(string);
 
@@ -60,7 +60,7 @@ int main(void)
 	while (c != 'p')
 	{
 		c = uart_receive();
-        oi_update(sensor);
+		oi_update(sensor);
 		if (c == 'm')
 		{
 			scan();
@@ -69,15 +69,15 @@ int main(void)
 		{
 			oi_setWheels(75, 75);
 			dist = dist + sensor->distance;
-			sprintf(string, "%lf", dist);
+			sprintf(string, "d %lf", dist);
 			uart_sendStr(string);
 		}
 		else if (c == 's')
 		{
 			oi_setWheels(-75, -75);
-            dist = dist + sensor->distance;
-            sprintf(string, "%lf", dist);
-            uart_sendStr(string);
+			dist = dist + sensor->distance;
+			sprintf(string, "d %lf", dist);
+			uart_sendStr(string);
 		}
 		else if (c == 'a')
 		{
@@ -88,7 +88,7 @@ int main(void)
 				angle += 360;
 			}
 			printf("%d\n", angle);
-			sprintf(string, "%d", angle);
+			sprintf(string, "t %d", angle);
 			uart_sendStr(string);
 		}
 		else if (c == 'd')
@@ -101,17 +101,15 @@ int main(void)
 			}
 
 			printf("%d\n", angle);
-			sprintf(string, "%d", angle);
+			sprintf(string, "t %d", angle);
 			uart_sendStr(string);
 		}
 		else
 		{
 			oi_setWheels(0, 0);
-//	        sprintf(string, " ");
-//	        uart_sendStr(string);
+			//	        sprintf(string, " ");
+			//	        uart_sendStr(string);
 		}
-
-
 	}
 
 	oi_free(sensor);
