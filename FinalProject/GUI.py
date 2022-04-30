@@ -3,6 +3,7 @@ import sys
 import math
 import os
 import socket
+from threading import Thread
 
 from pygame.locals import (
     K_w,
@@ -56,40 +57,51 @@ class Player(pygame.sprite.Sprite):
         self.angle = 0
         self.pos = pygame.Vector2((x, y))
         self.direction = pygame.Vector2((0, -1))
+        self.startx = x
+        self.starty = y
 
-    def update(self, v):
-        if v == 1 or v == 2:
-            if v == 1:
-                movement = 1
-            if v == 2:
-                movement = -1
-            movement_v = self.direction * movement
-            if movement_v.length() > 0:
-                movement_v.normalize_ip()
-                self.pos += movement_v
-            self.rect.center = (self.pos)
-        elif v == 3:
-            self.image = pygame.transform.rotate(
-                self.original_image, self.angle)
-            # Value will reapeat after 359. This prevents angle to overflow.
-            self.angle = (self.angle + rotateSPD) % 360
-            x, y = self.rect.center  # Save its current center.
-            self.direction.rotate_ip(-rotateSPD)
-            # Replace old rect with new rect.
-            self.rect = self.image.get_rect()
-            # Put the new rect's center at old center.
-            self.rect.center = (x, y)
-        elif v == 4:
-            self.image = pygame.transform.rotate(
-                self.original_image, self.angle)
-            # Value will reapeat after 359. This prevents angle to overflow.
-            self.angle = (self.angle - rotateSPD) % 360
-            x, y = self.rect.center  # Save its current center.
-            # Replace old rect with new rect.
-            self.direction.rotate_ip(rotateSPD)
-            self.rect = self.image.get_rect()
-            # Put the new rect's center at old center.
-            self.rect.center = (x, y)
+    def update(self, action, val):
+        if action == 1:
+            # if v == 1:
+            #     movement = 1
+            # if v == 2:
+            #     movement = -1
+            # movement_v = self.direction * movement
+            # if movement_v.length() > 0:
+            #     movement_v.normalize_ip()
+            #     self.pos += movement_v
+            # self.rect.center = (self.pos)
+            val = val / 10
+            self.rect.center = (self.startx + ((val * math.cos(self.angle * math.pi / 180))), self.starty + (val * math.sin(self.angle * math.pi / 180)))
+            # print((x + (val * math.cos(self.angle * math.pi / 180))))
+        elif action == 2:
+             self.image = pygame.transform.rotate(self.original_image, self.angle)
+             self.angle = val
+             x, y = self.rect.center
+             self.rect = self.image.get_rect()
+             self.rect.center = (x, y)
+        # elif v == 3:
+        #     self.image = pygame.transform.rotate(
+        #         self.original_image, self.angle)
+        #     # Value will reapeat after 359. This prevents angle to overflow.
+        #     self.angle = (self.angle + rotateSPD) % 360
+        #     x, y = self.rect.center  # Save its current center.
+        #     self.direction.rotate_ip(-rotateSPD)
+        #     # Replace old rect with new rect.
+        #     self.rect = self.image.get_rect()
+        #     # Put the new rect's center at old center.
+        #     self.rect.center = (x, y)
+        # elif v == 4:
+        #     self.image = pygame.transform.rotate(
+        #         self.original_image, self.angle)
+        #     # Value will reapeat after 359. This prevents angle to overflow.
+        #     self.angle = (self.angle - rotateSPD) % 360
+        #     x, y = self.rect.center  # Save its current center.
+        #     # Replace old rect with new rect.
+        #     self.direction.rotate_ip(rotateSPD)
+        #     self.rect = self.image.get_rect()
+        #     # Put the new rect's center at old center.
+        #     self.rect.center = (x, y)
 
 
 class Obj(pygame.sprite.Sprite):
@@ -113,8 +125,12 @@ all_sprites = pygame.sprite.Group()
 x = SCREEN_WIDTH/2
 y = SCREEN_HEIGHT/2
 
+def recieve(action):
+    data = s.recv(1024)
+    cybot.update(action, int(float(data.decode())))
 
 def scan():
+    s.send(bytes('m', 'utf-8'))
     res = ""
     for x in range(0, 180):
         data = s.recv(1024)
@@ -125,17 +141,19 @@ def scan():
         x, y = cybot.rect.center
         if angle <= 90: angle = (180 - angle)
         elif angle > 90: angle = -(angle - 180)
-
         pos = (x + (dist * math.cos((cybot.angle + angle) * math.pi / 180)), y - (dist * math.sin((cybot.angle + angle) * math.pi / 180)))
         if dist < 50:
             obj = Obj(pos)
-            obj.draw()
             all_sprites.add(obj)
+        for x in all_sprites:
+            x.draw()
         pygame.display.flip()
         pygame.display.update()
         screen.blit(cybot.image, cybot.rect)
         clock.tick(30)
 
+action = 0
+threads = list()
 
 running = True
 while running:
@@ -151,31 +169,34 @@ while running:
     screen.fill(black)
 
     if keys[K_m]:
-        s.send(bytes('m', 'utf-8'))
         scan()
-    elif keys[K_w]:
-        cybot.update(1)
-        s.send(bytes('w', 'utf-8'))
-    elif keys[K_s]:
-        cybot.update(2)
-        s.send(bytes('s', 'utf-8'))
-    elif keys[K_a]:
-        cybot.update(3)
-        s.send(bytes('a', 'utf-8'))
-    elif keys[K_d]:
-        cybot.update(4)
-        s.send(bytes('d', 'utf-8'))
+    elif keys[K_w] or keys[K_s]:
+        for thread in threads:
+            thread.join()
+        if keys[K_w]: s.send(bytes('w', 'utf-8'))
+        elif keys[K_s]: s.send(bytes('s', 'utf-8'))
+        thread = Thread(target = recieve, args=(1,), daemon=True)
+        threads.append(thread)
+        thread.start()
+    elif keys[K_a] or keys[K_d]:
+        for thread in threads:
+            thread.join()
+        if keys[K_a]: s.send(bytes('a', 'utf-8'))
+        elif keys[K_d]: s.send(bytes('d', 'utf-8'))
+        thread = Thread(target = recieve, args=(2,), daemon=True)
+        threads.append(thread)
+        thread.start()
     else:
         s.send(bytes(' ', 'utf-8'))
     screen.blit(cybot.image, cybot.rect)
 
     for x in all_sprites:
         x.draw()
-    
-    data = s.recv(1024)
+
     pygame.display.flip()
     pygame.display.update()
     clock.tick(30)
+
 
 s.close()
 pygame.quit()

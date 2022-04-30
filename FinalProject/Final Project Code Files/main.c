@@ -54,11 +54,13 @@ int main(void)
 
 	char c = ' ';
 	int angle = 0;
+	double dist = 0;
 	char string[100];
 
 	while (c != 'p')
 	{
 		c = uart_receive();
+        oi_update(sensor);
 		if (c == 'm')
 		{
 			scan();
@@ -66,48 +68,49 @@ int main(void)
 		else if (c == 'w')
 		{
 			oi_setWheels(75, 75);
-//			sprintf(string, " ");
-//			uart_sendStr(string);
+			dist = dist + sensor->distance;
+			sprintf(string, "%lf", dist);
+			uart_sendStr(string);
 		}
 		else if (c == 's')
 		{
 			oi_setWheels(-75, -75);
-//			sprintf(string, " ");
-//			uart_sendStr(string);
+            dist = dist + sensor->distance;
+            sprintf(string, "%lf", dist);
+            uart_sendStr(string);
 		}
 		else if (c == 'a')
 		{
 			oi_setWheels(75, -75);
-//			oi_update(sensor);
-//			angle = (int)(angle + sensor->angle) % 360;
-//			if (angle < 0)
-//			{
-//				angle += 360;
-//			}
-//			printf("%d\n", angle);
-//			sprintf(string, "%d", angle);
-//			uart_sendStr(string);
+			angle = (int)(angle + sensor->angle) % 360;
+			if (angle < 0)
+			{
+				angle += 360;
+			}
+			printf("%d\n", angle);
+			sprintf(string, "%d", angle);
+			uart_sendStr(string);
 		}
 		else if (c == 'd')
 		{
 			oi_setWheels(-75, 75);
-//			oi_update(sensor);
-//			angle = (int)(angle + sensor->angle) % 360;
-//			if (angle < 0)
-//			{
-//				angle += 360;
-//			}
+			angle = (int)(angle + sensor->angle) % 360;
+			if (angle < 0)
+			{
+				angle += 360;
+			}
 
-//			printf("%d\n", angle);
-//			sprintf(string, "%d", angle);
-//			uart_sendStr(string);
+			printf("%d\n", angle);
+			sprintf(string, "%d", angle);
+			uart_sendStr(string);
 		}
 		else
 		{
 			oi_setWheels(0, 0);
+//	        sprintf(string, " ");
+//	        uart_sendStr(string);
 		}
-        sprintf(string, " ");
-        uart_sendStr(string);
+
 
 	}
 
