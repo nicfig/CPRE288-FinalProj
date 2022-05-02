@@ -22,12 +22,18 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(('192.168.1.1', 288))
 
 
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 800
+SCREEN_WIDTH = 1150
+SCREEN_HEIGHT = 1150
+
+UNIT_MULTIPLIER = 1.3
+
+CYBOT_DIAMETER = 33 * UNIT_MULTIPLIER
 
 black = (0, 0, 0)
 red = (255, 0, 0)
 green = (0, 255, 0)
+purple = (255, 0, 255)
+cyan = (0, 255, 255)
 blue = (0, 0, 255)
 white = (255, 255, 255)
 ALPHA = (71, 112, 76)
@@ -37,15 +43,15 @@ pygame.init()
 clock = pygame.time.Clock()
 
 screen = pygame.display.set_mode([SCREEN_WIDTH, SCREEN_HEIGHT])
-DEFAULT_IMAGE_SIZE = (25, 25)
+DEFAULT_IMAGE_SIZE = (CYBOT_DIAMETER, CYBOT_DIAMETER)
 
 
 roomba = pygame.image.load(image).convert()
 
-rRotateSPD = 1.6
-lRotateSPD = 1.6
-spdForward = 1
-spdBackward = -1
+rRotateSPD = 2.4
+lRotateSPD = 2.4
+spdForward = 11
+spdBackward = -11
 
 
 class Player(pygame.sprite.Sprite):
@@ -74,13 +80,13 @@ class Player(pygame.sprite.Sprite):
         # self.rect.center = (nX, nY)
         if action == 1 or action == 2:
             if action == 1:
-                movement = spdForward
+                movement = 1
             if action == 2:
-                movement = spdBackward
+                movement = -1
             movement_v = self.direction * movement
             if movement_v.length() > 0:
                 movement_v.normalize_ip()
-                self.pos += movement_v
+                self.pos += movement_v * 0.35
             self.rect.center = (self.pos)
             # val = val / 10
             # x, y = self.rect.center
@@ -124,10 +130,10 @@ class Player(pygame.sprite.Sprite):
 
 
 class Obj(pygame.sprite.Sprite):
-    def __init__(self, pos, radius):
+    def __init__(self, pos, radius, color):
         super(Obj, self).__init__()
         self.obj_surface = screen
-        self.obj_color = red
+        self.obj_color = color
         self.obj_radius = radius
         self.obj_pos = pos
         self.obj_width = 0
@@ -146,66 +152,71 @@ y = SCREEN_HEIGHT/2
 
 res = ""
 
-def processData(dists):
-    isObj = False
-    objDist = []
-    objTheta = []
-    objWidth = []
-    startTheta = 0
-    distSum = 0
-    count = 0
-    for i, dist in enumerate(dists):
-        if dist < 50:
-            if(isObj == False):
-                startTheta = i
-                isObj = True
-            distSum += dist
-            count += 1
+# def processData(dists):
+#     isObj = False
+#     objDist = []
+#     objTheta = []
+#     objWidth = []
+#     startTheta = 0
+#     distSum = 0
+#     count = 0
+#     x, y = cybot.rect.center
+#     for i, dist in enumerate(dists):
+#         if dist < 50:
+#             if(isObj == False):
+#                 startTheta = i
+#                 isObj = True
+#             distSum += dist
+#             count += 1
 
-        elif isObj == True and (count > 1):
-            obj_angle = (i-1) - startTheta
-            obj_avg_dist = distSum / count
-            width = 2 * math.pi * obj_avg_dist * (obj_angle/360)
+#         elif isObj == True and (count > 1):
+#             obj_angle = (i-1) - startTheta
+#             obj_avg_dist = distSum / count
+#             width = 2 * math.pi * obj_avg_dist * (obj_angle/360)
 
-            objDist.append(obj_avg_dist)
-            objWidth.append(width)
-            objTheta.append((startTheta + (i-1)) / 2)
-            distSum = 0
-            count = 0
-            isObj = False
-        else:
-            distSum = 0
-            count = 0
-            isObj = False
+#             objDist.append(obj_avg_dist)
+#             objWidth.append(width)
+#             objTheta.append((startTheta + (i-1)) / 2)
+#             distSum = 0
+#             count = 0
+#             isObj = False
+#         else:
+#             distSum = 0
+#             count = 0
+#             isObj = False
 
-    if isObj == True and (count > 1):
-        obj_angle = len(dists) - startTheta
-        obj_avg_dist = distSum / count
-        width = 2 * math.pi * obj_avg_dist * (obj_angle/360)
-        objDist.append(obj_avg_dist)
-        objWidth.append(width)
-        objTheta.append((startTheta + len(dists)) / 2)
+#     if isObj == True and (count > 1):
+#         obj_angle = len(dists) - startTheta
+#         obj_avg_dist = distSum / count
+#         width = 2 * math.pi * obj_avg_dist * (obj_angle/360)
+#         objDist.append(obj_avg_dist)
+#         objWidth.append(width)
+#         objTheta.append((startTheta + len(dists)) / 2)
 
+#     for i in range(0, len(objDist)):
+#         if objTheta[i] <= 90:
+#             objTheta[i]= (180 - objTheta[i])
+#         elif objTheta[i] > 90:
+#             objTheta[i] = -(objTheta[i] - 180)
 
-    x, y = cybot.rect.center
-    for i in range(0, len(objDist)):
-        if objTheta[i] <= 90:
-            objTheta[i]= (180 - objTheta[i])
-        elif objTheta[i] > 90:
-            objTheta[i] = -(objTheta[i] - 180)
-
-        pos = (x + (objDist[i] * math.cos((cybot.angle + objTheta[i]) * math.pi / 180)), y - (objDist[i] * math.sin((cybot.angle + objTheta[i]) * math.pi / 180)))
-        obj = Obj(pos, objWidth[i])
-        all_sprites.add(obj)
-
-        
+#         objDist[i] = (objDist[i] + 8) * UNIT_MULTIPLIER
+#         print(objDist[i])
+#         pos = (x + (objDist[i] * math.cos((cybot.angle + objTheta[i]) * math.pi / 180)), y - (objDist[i] * math.sin((cybot.angle + objTheta[i]) * math.pi / 180)))
+#         if (objWidth[i] < 20):
+#             obj = Obj(pos, (objWidth[i] / 2), green)
+#         else:
+#             obj = Obj(pos, (objWidth[i] / 2), red)
+#         obj.draw()
+#         all_sprites.add(obj)
+#     print('Done')
             
-
-
-
+startTheta = 0
+distSum = 0
+isObj = False
 def recieve():
-    angles = []
-    dists = []
+    global isObj
+    global startTheta
+    global distSum
     while True:
         res = ""
         data = s.recv(1024)
@@ -213,29 +224,65 @@ def recieve():
             break
         res += data.decode()
         if res[0] == 'm':
+            print(res)
+            if(len(res) > 50):
+                continue
             res = res.strip('m')
             angle, dist = (int(float(s)) for s in res.split())
-            dists.append(dist)
-            if (len(dists) == 180):
-                processData(dists)
-                dists.clear()
-            # x, y = cybot.rect.center
-            # if angle <= 90:
-            #     angle = (180 - angle)
-            # elif angle > 90:
-            #     angle = -(angle - 180)
-            # pos = (x + (dist * math.cos((cybot.angle + angle) * math.pi / 180)),
-            #        y - (dist * math.sin((cybot.angle + angle) * math.pi / 180)))
-            # if dist < 50:
-            #     obj = Obj(pos)
-            #     all_sprites.add(obj)
+
+            if angle <= 90:
+                agl = (180 - angle)
+            elif angle > 90:
+                agl = -(angle - 180)
+
+            x, y = cybot.rect.center
+            if dist < 50:
+                pos = (x + ((dist + 8) * math.cos((cybot.angle + agl) * math.pi / 180)), y - ((dist + 8) * math.sin((cybot.angle + agl) * math.pi / 180)))
+                obj = Obj(pos, 1, purple)
+                obj.draw()
+                all_sprites.add(obj)
+                if(isObj == False):
+                    startTheta = angle
+                    isObj = True
+                distSum += dist
+
+            elif isObj == True and ((angle - 1) - startTheta) > 1:
+                obj_angleSum = (angle-1) - startTheta
+                print(obj_angleSum)
+                obj_avg_dist = ((distSum / obj_angleSum) + 8) * UNIT_MULTIPLIER
+                width = 2 * math.pi * obj_avg_dist * (obj_angleSum/360)
+                print(width)
+                obj_angle = (startTheta + (angle-1)) / 2
+                print(obj_avg_dist)
+                if obj_angle <= 90:
+                    obj_angle = (180 - obj_angle)
+                elif angle > 90:
+                    obj_angle = -(obj_angle - 180)
+
+                pos = (x + (obj_avg_dist * math.cos((cybot.angle + obj_angle) * math.pi / 180)), y - (obj_avg_dist * math.sin((cybot.angle + obj_angle) * math.pi / 180)))
+
+                if (width < 20):
+                    obj = Obj(pos, (width / 2), green)
+                else:
+                    obj = Obj(pos, (width / 2), red)
+                obj.draw()
+                all_sprites.add(obj) 
+                distSum = 0
+                count = 0
+                isObj = False
+            else:
+                distSum = 0
+                count = 0
+                isObj = False        
+
+        elif res[0] == 'w':
+            cybot.update(1)
+        elif res[0] == 's':
+            cybot.update(2)
+        elif res[0] == 'a':
+            cybot.update(3)
         elif res[0] == 'd':
-            res = res.strip('d')
-            dist, angle = (int(float(s)) for s in res.split())
-            # cybot.update(dist, angle)
-        # elif res[0] == 't':
-        #     res = res.strip('t')
-        #     cybot.update(2, int(float(res)))
+            cybot.update(4)
 action = 0
 threads = list()
 thread = Thread(target=recieve, args=(), daemon=True)
@@ -255,18 +302,14 @@ while running:
 
     if keys[K_m]:
         s.send(bytes('m', 'utf-8'))
-    if keys[K_w]:
+    elif keys[K_w]:
         s.send(bytes('w', 'utf-8'))
-        cybot.update(1)
     elif keys[K_s]:
         s.send(bytes('s', 'utf-8'))
-        cybot.update(2)
     elif keys[K_a]:
         s.send(bytes('a', 'utf-8'))
-        cybot.update(3)
     elif keys[K_d]:
         s.send(bytes('d', 'utf-8'))
-        cybot.update(4)
     else:
         s.send(bytes(' ', 'utf-8'))
     screen.blit(cybot.image, cybot.rect)
