@@ -139,9 +139,21 @@ class Obj(pygame.sprite.Sprite):
         self.obj_width = 0
 
     def draw(self):
-        self.obj_character = pygame.draw.circle(
-            self.obj_surface, self.obj_color, self.obj_pos, self.obj_radius, self.obj_width)
+        pygame.draw.circle(self.obj_surface, self.obj_color, self.obj_pos, self.obj_radius, self.obj_width)
 
+
+
+class rect(pygame.sprite.Sprite):
+    def __init__(self, x, y, size, color):
+        super(rect, self).__init__()
+        self.surf = screen
+        self.color = color
+        self.size = size
+        self.x = x
+        self.y = y
+
+    def draw(self):
+        pygame.draw.rect(self.surf, self.color, pygame.Rect(self.x, self.y, self.size, self.size))
 
 cybot = Player(SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
 
@@ -151,64 +163,6 @@ x = SCREEN_WIDTH/2
 y = SCREEN_HEIGHT/2
 
 res = ""
-
-# def processData(dists):
-#     isObj = False
-#     objDist = []
-#     objTheta = []
-#     objWidth = []
-#     startTheta = 0
-#     distSum = 0
-#     count = 0
-#     x, y = cybot.rect.center
-#     for i, dist in enumerate(dists):
-#         if dist < 50:
-#             if(isObj == False):
-#                 startTheta = i
-#                 isObj = True
-#             distSum += dist
-#             count += 1
-
-#         elif isObj == True and (count > 1):
-#             obj_angle = (i-1) - startTheta
-#             obj_avg_dist = distSum / count
-#             width = 2 * math.pi * obj_avg_dist * (obj_angle/360)
-
-#             objDist.append(obj_avg_dist)
-#             objWidth.append(width)
-#             objTheta.append((startTheta + (i-1)) / 2)
-#             distSum = 0
-#             count = 0
-#             isObj = False
-#         else:
-#             distSum = 0
-#             count = 0
-#             isObj = False
-
-#     if isObj == True and (count > 1):
-#         obj_angle = len(dists) - startTheta
-#         obj_avg_dist = distSum / count
-#         width = 2 * math.pi * obj_avg_dist * (obj_angle/360)
-#         objDist.append(obj_avg_dist)
-#         objWidth.append(width)
-#         objTheta.append((startTheta + len(dists)) / 2)
-
-#     for i in range(0, len(objDist)):
-#         if objTheta[i] <= 90:
-#             objTheta[i]= (180 - objTheta[i])
-#         elif objTheta[i] > 90:
-#             objTheta[i] = -(objTheta[i] - 180)
-
-#         objDist[i] = (objDist[i] + 8) * UNIT_MULTIPLIER
-#         print(objDist[i])
-#         pos = (x + (objDist[i] * math.cos((cybot.angle + objTheta[i]) * math.pi / 180)), y - (objDist[i] * math.sin((cybot.angle + objTheta[i]) * math.pi / 180)))
-#         if (objWidth[i] < 20):
-#             obj = Obj(pos, (objWidth[i] / 2), green)
-#         else:
-#             obj = Obj(pos, (objWidth[i] / 2), red)
-#         obj.draw()
-#         all_sprites.add(obj)
-#     print('Done')
             
 startTheta = 0
 distSum = 0
@@ -223,10 +177,8 @@ def recieve():
         if not data:
             break
         res += data.decode()
-        if res[0] == 'm':
+        if res[0] == 'm' and (len(res) < 50):
             print(res)
-            if(len(res) > 50):
-                continue
             res = res.strip('m')
             angle, dist = (int(float(s)) for s in res.split())
 
@@ -261,10 +213,10 @@ def recieve():
 
                 pos = (x + (obj_avg_dist * math.cos((cybot.angle + obj_angle) * math.pi / 180)), y - (obj_avg_dist * math.sin((cybot.angle + obj_angle) * math.pi / 180)))
 
-                if (width < 20):
-                    obj = Obj(pos, (width / 2), green)
+                if (width < 17):
+                    obj = Obj(pos, (width / 2) * UNIT_MULTIPLIER, green)
                 else:
-                    obj = Obj(pos, (width / 2), red)
+                    obj = Obj(pos, (width / 2) * UNIT_MULTIPLIER, red)
                 obj.draw()
                 all_sprites.add(obj) 
                 distSum = 0
@@ -302,6 +254,7 @@ while running:
 
     if keys[K_m]:
         s.send(bytes('m', 'utf-8'))
+        s.send(bytes(' ', 'utf-8'))
     elif keys[K_w]:
         s.send(bytes('w', 'utf-8'))
     elif keys[K_s]:

@@ -32,13 +32,23 @@ void scan()
 	{
 	    servo_move(i);
 	    double sumDist = 0;
-	    for (j = 0; j < scanAmt; j++){
-	        sumDist += ping_getDistance();
+        int j;
+        for(j = 0; j < scanAmt; j++){
+            if(adc_read() > 750){
+                sumDist += ping_getDistance();
+            }
             timer_waitMillis(50);
-	    }
-	    double dist = sumDist /= scanAmt;
-		// YOUR CODE HERE
-		sprintf(string, "m %d %lf", i, dist);
+        }
+        double dist;
+        if(sumDist > 0){
+            dist = sumDist / scanAmt;
+        }
+        else{
+            dist = 999;
+        }
+
+        sprintf(string, "m %d %lf", i, dist);
+
 
 		uart_sendStr(string);
 
@@ -57,6 +67,7 @@ int main(void)
 	button_init();
 	ping_init();
 	uart_init();
+	adc_init();
 
 	char c = ' ';
 	int angle = 0;
