@@ -71,13 +71,6 @@ class Player(pygame.sprite.Sprite):
         self.starty = y
 
     def update(self, action):
-        # self.angle = angle
-        # nX = (self.startx + (dist * math.cos((self.angle + 90) * math.pi / 180)))
-        # nY = (self.starty - (dist * math.sin((self.angle + 90) * math.pi / 180)))
-        # # self.rect = self.image.get_rect()
-        # # self.rect.center = (nX, nY)
-        # self. image = pygame.transform.rotate(self.original_image, self.angle)
-        # self.rect.center = (nX, nY)
         if action == 1 or action == 2:
             if action == 1:
                 movement = 1
@@ -88,23 +81,6 @@ class Player(pygame.sprite.Sprite):
                 movement_v.normalize_ip()
                 self.pos += movement_v * spdForward
             self.rect.center = (self.pos)
-            # val = val / 10
-            # x, y = self.rect.center
-            # if val < 0:
-            #     nX = math.ceil(x + (val * math.cos((self.angle + 90) * math.pi / 180)))
-            #     nY = math.ceil(y - (val * math.sin((self.angle + 90) * math.pi / 180)))
-            #     print(nX)
-            # else:
-            #     nX = math.floor(x + (val * math.cos((self.angle + 90) * math.pi / 180)))
-            #     nY = math.floor(y - (val * math.sin((self.angle + 90) * math.pi / 180)))
-            #     print(nX)
-            # self.rect.center = (nX,nY)
-        # # elif action == 2:
-        #     self.angle = val
-        #     x, y = self.rect.center
-        #     self.rect = self.image.get_rect()
-        #     self.rect.center = (x, y)
-        #     self.image = pygame.transform.rotate(self.original_image, self.angle)
         elif action == 3:
             self.image = pygame.transform.rotate(
                 self.original_image, self.angle)
@@ -119,13 +95,10 @@ class Player(pygame.sprite.Sprite):
         elif action == 4:
             self.image = pygame.transform.rotate(
                 self.original_image, self.angle)
-            # Value will reapeat after 359. This prevents angle to overflow.
             self.angle = (self.angle - rRotateSPD) % 360
-            x, y = self.rect.center  # Save its current center.
-            # Replace old rect with new rect.
+            x, y = self.rect.center
             self.direction.rotate_ip(rRotateSPD)
             self.rect = self.image.get_rect()
-            # Put the new rect's center at old center.
             self.rect.center = (x, y)
 
 
@@ -139,8 +112,8 @@ class Obj(pygame.sprite.Sprite):
         self.obj_width = 0
 
     def draw(self):
-        pygame.draw.circle(self.obj_surface, self.obj_color, self.obj_pos, self.obj_radius, self.obj_width)
-
+        pygame.draw.circle(self.obj_surface, self.obj_color,
+                           self.obj_pos, self.obj_radius, self.obj_width)
 
 
 class rect(pygame.sprite.Sprite):
@@ -153,7 +126,23 @@ class rect(pygame.sprite.Sprite):
         self.y = y
 
     def draw(self):
-        pygame.draw.rect(self.surf, self.color, pygame.Rect(self.x, self.y, self.size, self.size))
+        pygame.draw.rect(self.surf, self.color, pygame.Rect(
+            self.x, self.y, self.size, self.size))
+
+
+class arc(pygame.sprite.Sprite):
+    def __init__(self, rect, start_angle, end_angle, color, width):
+        super(arc, self).__init__()
+        self.rect = rect
+        self.start_angle = start_angle
+        self.end_angle = end_angle
+        self.color = color
+        self.width = width
+
+    def draw(self):
+        pygame.draw.arc(screen, self.color, self.rect,
+                        self.start_angle, self.end_angle, self.width)
+
 
 cybot = Player(SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
 
@@ -163,10 +152,12 @@ x = SCREEN_WIDTH/2
 y = SCREEN_HEIGHT/2
 
 res = ""
-            
+
 startTheta = 0
 distSum = 0
 isObj = False
+
+
 def recieve():
     global isObj
     global startTheta
@@ -180,39 +171,66 @@ def recieve():
         x, y = cybot.rect.center
         print(res)
         if 'v1' in res:
-            px = x + ((CYBOT_DIAMETER / 2) * math.cos((cybot.angle + (180 - 30)) * math.pi / 180))
-            py = y - ((CYBOT_DIAMETER / 2) * math.sin((cybot.angle + (180 - 30)) * math.pi / 180))
+            px = x + ((CYBOT_DIAMETER / 2) *
+                      math.cos((cybot.angle + (180 - 30)) * math.pi / 180))
+            py = y - ((CYBOT_DIAMETER / 2) *
+                      math.sin((cybot.angle + (180 - 30)) * math.pi / 180))
             all_sprites.add(rect(px, py, 5, white))
         if 'v2' in res:
-            px = x + ((CYBOT_DIAMETER / 2) * math.cos((cybot.angle + (180 - 75)) * math.pi / 180))
-            py = y - ((CYBOT_DIAMETER / 2) * math.sin((cybot.angle + (180 - 75)) * math.pi / 180))
+            px = x + ((CYBOT_DIAMETER / 2) *
+                      math.cos((cybot.angle + (180 - 75)) * math.pi / 180))
+            py = y - ((CYBOT_DIAMETER / 2) *
+                      math.sin((cybot.angle + (180 - 75)) * math.pi / 180))
             all_sprites.add(rect(px, py, 5, white))
         if 'v3' in res:
-            px = x + ((CYBOT_DIAMETER / 2) * math.cos((cybot.angle + -(105 - 180)) * math.pi / 180))
-            py = y - ((CYBOT_DIAMETER / 2) * math.sin((cybot.angle + -(105 - 180)) * math.pi / 180))
+            px = x + ((CYBOT_DIAMETER / 2) *
+                      math.cos((cybot.angle + -(105 - 180)) * math.pi / 180))
+            py = y - ((CYBOT_DIAMETER / 2) *
+                      math.sin((cybot.angle + -(105 - 180)) * math.pi / 180))
             all_sprites.add(rect(px, py, 5, white))
         if 'v4' in res:
-            px = x + ((CYBOT_DIAMETER / 2) * math.cos((cybot.angle + -(150 - 180)) * math.pi / 180))
-            py = y - ((CYBOT_DIAMETER / 2) * math.sin((cybot.angle + -(150 - 180)) * math.pi / 180))
+            px = x + ((CYBOT_DIAMETER / 2) *
+                      math.cos((cybot.angle + -(150 - 180)) * math.pi / 180))
+            py = y - ((CYBOT_DIAMETER / 2) *
+                      math.sin((cybot.angle + -(150 - 180)) * math.pi / 180))
             all_sprites.add(rect(px, py, 5, white))
 
         if 'c1' in res:
-            px = x + ((CYBOT_DIAMETER / 2) * math.cos((cybot.angle + (180 - 30)) * math.pi / 180))
-            py = y - ((CYBOT_DIAMETER / 2) * math.sin((cybot.angle + (180 - 30)) * math.pi / 180))
+            px = x + ((CYBOT_DIAMETER / 2) *
+                      math.cos((cybot.angle + (180 - 30)) * math.pi / 180))
+            py = y - ((CYBOT_DIAMETER / 2) *
+                      math.sin((cybot.angle + (180 - 30)) * math.pi / 180))
             all_sprites.add(rect(px, py, 5, cyan))
         if 'c2' in res:
-            px = x + ((CYBOT_DIAMETER / 2) * math.cos((cybot.angle + (180 - 75)) * math.pi / 180))
-            py = y - ((CYBOT_DIAMETER / 2) * math.sin((cybot.angle + (180 - 75)) * math.pi / 180))
+            px = x + ((CYBOT_DIAMETER / 2) *
+                      math.cos((cybot.angle + (180 - 75)) * math.pi / 180))
+            py = y - ((CYBOT_DIAMETER / 2) *
+                      math.sin((cybot.angle + (180 - 75)) * math.pi / 180))
             all_sprites.add(rect(px, py, 5, cyan))
         if 'c3' in res:
-            px = x + ((CYBOT_DIAMETER / 2) * math.cos((cybot.angle + -(105 - 180)) * math.pi / 180))
-            py = y - ((CYBOT_DIAMETER / 2) * math.sin((cybot.angle + -(105 - 180)) * math.pi / 180))
+            px = x + ((CYBOT_DIAMETER / 2) *
+                      math.cos((cybot.angle + -(105 - 180)) * math.pi / 180))
+            py = y - ((CYBOT_DIAMETER / 2) *
+                      math.sin((cybot.angle + -(105 - 180)) * math.pi / 180))
             all_sprites.add(rect(px, py, 5, cyan))
         if 'c4' in res:
-            px = x + ((CYBOT_DIAMETER / 2) * math.cos((cybot.angle + -(150 - 180)) * math.pi / 180))
-            py = y - ((CYBOT_DIAMETER / 2) * math.sin((cybot.angle + -(150 - 180)) * math.pi / 180))
+            px = x + ((CYBOT_DIAMETER / 2) *
+                      math.cos((cybot.angle + -(150 - 180)) * math.pi / 180))
+            py = y - ((CYBOT_DIAMETER / 2) *
+                      math.sin((cybot.angle + -(150 - 180)) * math.pi / 180))
             all_sprites.add(rect(px, py, 5, cyan))
 
+        if 'b1' in res:
+            start_angle = (cybot.angle + 90) * math.pi / 180
+            end_angle = ((cybot.angle + 90) + 90) * math.pi / 180
+            all_sprites.add(arc(pygame.Rect(x, y, CYBOT_DIAMETER + 10,
+                            CYBOT_DIAMETER + 10), start_angle, end_angle, red, 20))
+
+        if 'b2' in res:
+            start_angle = ((cybot.angle + 90) - 90) * math.pi / 180
+            end_angle = (cybot.angle + 90) * math.pi / 180
+            all_sprites.add(arc(pygame.Rect(x, y, CYBOT_DIAMETER + 10,
+                            CYBOT_DIAMETER + 10), start_angle, end_angle, red, 20))
         if res[0] == 'm' and (len(res) < 50):
             res = res.strip('m')
             angle, dist = (int(float(s)) for s in res.split())
@@ -222,7 +240,8 @@ def recieve():
             elif angle > 90:
                 agl = -(angle - 180)
             if dist < 50:
-                pos = (x + ((dist + 8) * math.cos((cybot.angle + agl) * math.pi / 180)), y - ((dist + 8) * math.sin((cybot.angle + agl) * math.pi / 180)))
+                pos = (x + ((dist + 8) * math.cos((cybot.angle + agl) * math.pi / 180)),
+                       y - ((dist + 8) * math.sin((cybot.angle + agl) * math.pi / 180)))
                 obj = Obj(pos, 1, purple)
                 obj.draw()
                 all_sprites.add(obj)
@@ -241,21 +260,22 @@ def recieve():
                 elif angle > 90:
                     obj_angle = -(obj_angle - 180)
 
-                pos = (x + (obj_avg_dist * math.cos((cybot.angle + obj_angle) * math.pi / 180)), y - (obj_avg_dist * math.sin((cybot.angle + obj_angle) * math.pi / 180)))
+                pos = (x + (obj_avg_dist * math.cos((cybot.angle + obj_angle) * math.pi / 180)),
+                       y - (obj_avg_dist * math.sin((cybot.angle + obj_angle) * math.pi / 180)))
 
                 if (width < 17):
                     obj = Obj(pos, (width / 2) * UNIT_MULTIPLIER, green)
                 else:
                     obj = Obj(pos, (width / 2) * UNIT_MULTIPLIER, red)
                 obj.draw()
-                all_sprites.add(obj) 
+                all_sprites.add(obj)
                 distSum = 0
                 count = 0
                 isObj = False
             else:
                 distSum = 0
                 count = 0
-                isObj = False   
+                isObj = False
         elif 'w' in res:
             cybot.update(1)
         elif 's' in res:
@@ -264,6 +284,8 @@ def recieve():
             cybot.update(3)
         elif 'd' in res:
             cybot.update(4)
+
+
 action = 0
 threads = list()
 thread = Thread(target=recieve, args=(), daemon=True)
