@@ -48,10 +48,10 @@ DEFAULT_IMAGE_SIZE = (CYBOT_DIAMETER, CYBOT_DIAMETER)
 
 roomba = pygame.image.load(image).convert()
 
-rRotateSPD = 2.4
-lRotateSPD = 2.4
-spdForward = 11
-spdBackward = -11
+rRotateSPD = 3.95
+lRotateSPD = 3.95
+spdForward = 0.28
+spdBackward = -0.28
 
 
 class Player(pygame.sprite.Sprite):
@@ -86,7 +86,7 @@ class Player(pygame.sprite.Sprite):
             movement_v = self.direction * movement
             if movement_v.length() > 0:
                 movement_v.normalize_ip()
-                self.pos += movement_v * 0.35
+                self.pos += movement_v * spdForward
             self.rect.center = (self.pos)
             # val = val / 10
             # x, y = self.rect.center
@@ -177,8 +177,43 @@ def recieve():
         if not data:
             break
         res += data.decode()
+        x, y = cybot.rect.center
+        print(res)
+        if 'v1' in res:
+            px = x + ((CYBOT_DIAMETER / 2) * math.cos((cybot.angle + (180 - 30)) * math.pi / 180))
+            py = y - ((CYBOT_DIAMETER / 2) * math.sin((cybot.angle + (180 - 30)) * math.pi / 180))
+            all_sprites.add(rect(px, py, 5, white))
+        if 'v2' in res:
+            px = x + ((CYBOT_DIAMETER / 2) * math.cos((cybot.angle + (180 - 75)) * math.pi / 180))
+            py = y - ((CYBOT_DIAMETER / 2) * math.sin((cybot.angle + (180 - 75)) * math.pi / 180))
+            all_sprites.add(rect(px, py, 5, white))
+        if 'v3' in res:
+            px = x + ((CYBOT_DIAMETER / 2) * math.cos((cybot.angle + -(105 - 180)) * math.pi / 180))
+            py = y - ((CYBOT_DIAMETER / 2) * math.sin((cybot.angle + -(105 - 180)) * math.pi / 180))
+            all_sprites.add(rect(px, py, 5, white))
+        if 'v4' in res:
+            px = x + ((CYBOT_DIAMETER / 2) * math.cos((cybot.angle + -(150 - 180)) * math.pi / 180))
+            py = y - ((CYBOT_DIAMETER / 2) * math.sin((cybot.angle + -(150 - 180)) * math.pi / 180))
+            all_sprites.add(rect(px, py, 5, white))
+
+        if 'c1' in res:
+            px = x + ((CYBOT_DIAMETER / 2) * math.cos((cybot.angle + (180 - 30)) * math.pi / 180))
+            py = y - ((CYBOT_DIAMETER / 2) * math.sin((cybot.angle + (180 - 30)) * math.pi / 180))
+            all_sprites.add(rect(px, py, 5, cyan))
+        if 'c2' in res:
+            px = x + ((CYBOT_DIAMETER / 2) * math.cos((cybot.angle + (180 - 75)) * math.pi / 180))
+            py = y - ((CYBOT_DIAMETER / 2) * math.sin((cybot.angle + (180 - 75)) * math.pi / 180))
+            all_sprites.add(rect(px, py, 5, cyan))
+        if 'c3' in res:
+            px = x + ((CYBOT_DIAMETER / 2) * math.cos((cybot.angle + -(105 - 180)) * math.pi / 180))
+            py = y - ((CYBOT_DIAMETER / 2) * math.sin((cybot.angle + -(105 - 180)) * math.pi / 180))
+            all_sprites.add(rect(px, py, 5, cyan))
+        if 'c4' in res:
+            px = x + ((CYBOT_DIAMETER / 2) * math.cos((cybot.angle + -(150 - 180)) * math.pi / 180))
+            py = y - ((CYBOT_DIAMETER / 2) * math.sin((cybot.angle + -(150 - 180)) * math.pi / 180))
+            all_sprites.add(rect(px, py, 5, cyan))
+
         if res[0] == 'm' and (len(res) < 50):
-            print(res)
             res = res.strip('m')
             angle, dist = (int(float(s)) for s in res.split())
 
@@ -186,8 +221,6 @@ def recieve():
                 agl = (180 - angle)
             elif angle > 90:
                 agl = -(angle - 180)
-
-            x, y = cybot.rect.center
             if dist < 50:
                 pos = (x + ((dist + 8) * math.cos((cybot.angle + agl) * math.pi / 180)), y - ((dist + 8) * math.sin((cybot.angle + agl) * math.pi / 180)))
                 obj = Obj(pos, 1, purple)
@@ -200,12 +233,9 @@ def recieve():
 
             elif isObj == True and ((angle - 1) - startTheta) > 1:
                 obj_angleSum = (angle-1) - startTheta
-                print(obj_angleSum)
                 obj_avg_dist = ((distSum / obj_angleSum) + 8) * UNIT_MULTIPLIER
                 width = 2 * math.pi * obj_avg_dist * (obj_angleSum/360)
-                print(width)
                 obj_angle = (startTheta + (angle-1)) / 2
-                print(obj_avg_dist)
                 if obj_angle <= 90:
                     obj_angle = (180 - obj_angle)
                 elif angle > 90:
@@ -225,15 +255,14 @@ def recieve():
             else:
                 distSum = 0
                 count = 0
-                isObj = False        
-
-        elif res[0] == 'w':
+                isObj = False   
+        elif 'w' in res:
             cybot.update(1)
-        elif res[0] == 's':
+        elif 's' in res:
             cybot.update(2)
-        elif res[0] == 'a':
+        elif 'a' in res:
             cybot.update(3)
-        elif res[0] == 'd':
+        elif 'd' in res:
             cybot.update(4)
 action = 0
 threads = list()
