@@ -110,6 +110,39 @@ int main(void) {
 	        oi_setWheels(0, 0);
 	        uart_sendStr("c4");
 	    }
+
+	    int leftLine = sensor -> cliffLeftSignal;
+	    int frontLeftLine = sensor -> cliffFrontLeftSignal;
+	    int rightLine = sensor -> cliffRightSignal;
+	    int frontRightLine = sensor -> cliffFrontRightSignal;
+	    oi_update(sensor);
+
+	    if(leftLine > 2700){
+	        oi_setWheels(0, 0);
+	        uart_sendStr("v1");
+	    }
+	    if(frontLeftLine > 2700){
+	        oi_setWheels(0, 0);
+	        uart_sendStr("v2");
+	    }
+	    if(frontRightLine > 2700){
+	        oi_setWheels(0, 0);
+	        uart_sendStr("v3");
+	    }
+	    if(rightLine > 2700){
+	        oi_setWheels(0, 0);
+	        uart_sendStr("v4");
+	    }
+
+
+	    if(sensor->bumpLeft){
+	        oi_setWheels(0, 0);
+	        uart_sendStr("b1");
+	    }
+	    if(sensor->bumpRight){
+	        oi_setWheels(0, 0);
+	        uart_sendStr("b2");
+	    }
 	}
 
     oi_free(sensor);
