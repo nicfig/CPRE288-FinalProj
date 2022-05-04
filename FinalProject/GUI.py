@@ -11,6 +11,7 @@ from pygame.locals import (
     K_s,
     K_d,
     K_m,
+    K_i,
     K_ESCAPE,
     QUIT,
     KEYDOWN,
@@ -27,7 +28,7 @@ SCREEN_HEIGHT = 1150
 
 UNIT_MULTIPLIER = 1.3
 
-CYBOT_DIAMETER = 33 * UNIT_MULTIPLIER
+CYBOT_DIAMETER = 33
 
 black = (0, 0, 0)
 red = (255, 0, 0)
@@ -48,10 +49,10 @@ DEFAULT_IMAGE_SIZE = (CYBOT_DIAMETER, CYBOT_DIAMETER)
 
 roomba = pygame.image.load(image).convert()
 
-rRotateSPD = 3.95
-lRotateSPD = 3.95
-spdForward = 0.28
-spdBackward = -0.28
+rRotateSPD = 4.75
+lRotateSPD = 4.75
+spdForward = 1.1
+spdBackward = -1.1
 
 
 class Player(pygame.sprite.Sprite):
@@ -147,6 +148,7 @@ class arc(pygame.sprite.Sprite):
 cybot = Player(SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
 
 all_sprites = pygame.sprite.Group()
+bumbs = pygame.sprite.Group()
 
 x = SCREEN_WIDTH/2
 y = SCREEN_HEIGHT/2
@@ -223,15 +225,17 @@ def recieve():
         if 'b1' in res:
             start_angle = (cybot.angle + 90) * math.pi / 180
             end_angle = ((cybot.angle + 90) + 90) * math.pi / 180
-            all_sprites.add(arc(pygame.Rect(x, y, CYBOT_DIAMETER + 10,
-                            CYBOT_DIAMETER + 10), start_angle, end_angle, red, 20))
+            width = height = CYBOT_DIAMETER + 25
+            bumbs.add(arc(pygame.Rect(x-(width/2), y-(height/2), width,
+                            height), start_angle, end_angle, red, 15))
 
         if 'b2' in res:
             start_angle = ((cybot.angle + 90) - 90) * math.pi / 180
             end_angle = (cybot.angle + 90) * math.pi / 180
-            all_sprites.add(arc(pygame.Rect(x, y, CYBOT_DIAMETER + 10,
-                            CYBOT_DIAMETER + 10), start_angle, end_angle, red, 20))
-        if res[0] == 'm' and (len(res) < 50):
+            width = height = CYBOT_DIAMETER + 25
+            bumbs.add(arc(pygame.Rect(x-(width/2), y-(height/2), width,
+                            height), start_angle, end_angle, red, 15))
+        if res[0] == 'm' and (len(res) < 17):
             res = res.strip('m')
             angle, dist = (int(float(s)) for s in res.split())
 
@@ -240,8 +244,9 @@ def recieve():
             elif angle > 90:
                 agl = -(angle - 180)
             if dist < 50:
-                pos = (x + ((dist + 8) * math.cos((cybot.angle + agl) * math.pi / 180)),
-                       y - ((dist + 8) * math.sin((cybot.angle + agl) * math.pi / 180)))
+                temp = (dist + 12)
+                pos = (x + (temp * math.cos((cybot.angle + agl) * math.pi / 180)),
+                       y - (temp * math.sin((cybot.angle + agl) * math.pi / 180)))
                 obj = Obj(pos, 1, purple)
                 obj.draw()
                 all_sprites.add(obj)
@@ -252,7 +257,7 @@ def recieve():
 
             elif isObj == True and ((angle - 1) - startTheta) > 1:
                 obj_angleSum = (angle-1) - startTheta
-                obj_avg_dist = ((distSum / obj_angleSum) + 8) * UNIT_MULTIPLIER
+                obj_avg_dist = ((distSum / obj_angleSum) + 12)
                 width = 2 * math.pi * obj_avg_dist * (obj_angleSum/360)
                 obj_angle = (startTheta + (angle-1)) / 2
                 if obj_angle <= 90:
@@ -262,8 +267,8 @@ def recieve():
 
                 pos = (x + (obj_avg_dist * math.cos((cybot.angle + obj_angle) * math.pi / 180)),
                        y - (obj_avg_dist * math.sin((cybot.angle + obj_angle) * math.pi / 180)))
-
-                if (width < 17):
+                print(width)
+                if (width < 15):
                     obj = Obj(pos, (width / 2) * UNIT_MULTIPLIER, green)
                 else:
                     obj = Obj(pos, (width / 2) * UNIT_MULTIPLIER, red)
@@ -302,6 +307,12 @@ while running:
     keys = pygame.key.get_pressed()
 
     screen.fill(black)
+    for x in all_sprites:
+        x.draw()
+    for x in bumbs:
+        x.draw()
+
+    screen.blit(cybot.image, cybot.rect)
 
     if keys[K_m]:
         s.send(bytes('m', 'utf-8'))
@@ -314,12 +325,11 @@ while running:
         s.send(bytes('a', 'utf-8'))
     elif keys[K_d]:
         s.send(bytes('d', 'utf-8'))
+    elif keys[K_i]:
+        pygame.image.save(screen, "prev.jpg")
+        all_sprites.empty()
     else:
         s.send(bytes(' ', 'utf-8'))
-    screen.blit(cybot.image, cybot.rect)
-
-    for x in all_sprites:
-        x.draw()
     pygame.display.flip()
     pygame.display.update()
     clock.tick(30)
