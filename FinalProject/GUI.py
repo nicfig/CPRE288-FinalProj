@@ -49,10 +49,10 @@ DEFAULT_IMAGE_SIZE = (CYBOT_DIAMETER, CYBOT_DIAMETER)
 
 roomba = pygame.image.load(image).convert()
 
-rRotateSPD = 4.75
-lRotateSPD = 4.75
-spdForward = 1.1
-spdBackward = -1.1
+rRotateSPD = 4
+lRotateSPD = 4
+spdForward = 0.75
+spdBackward = -0.75
 
 
 class Player(pygame.sprite.Sprite):
